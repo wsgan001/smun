@@ -11,12 +11,11 @@ public class MainTestSmun {
 		String input = readInput("contextPasquier99.txt");
 		String output = "output.txt";
 		
-		double minsup = 0;
+		double minsup = 0.4;
 		
 		Smun smun = new Smun();
 		smun.runAlgorithm(input, minsup, output);
 		
-		System.out.println(input);
 	}
 
 	private static String readInput(String fileName) throws UnsupportedEncodingException {
