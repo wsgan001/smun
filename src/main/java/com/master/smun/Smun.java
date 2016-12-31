@@ -108,9 +108,10 @@ public class Smun
     			continue;
     		}
     		
-    		String[] itemString = line.split(" ");
+    		String[] lineSplited = line.split(" ");
     		
-    		for (String item : itemString) {
+    		int tLen = 0;
+    		for (String itemString : lineSplited) {
 				
 			}
     	}
