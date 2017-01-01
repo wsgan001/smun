@@ -137,13 +137,15 @@ public class Smun
 
 			 int curPos = 0;
 			 PPCTreeNode curRoot = (ppcRoot);
+			 PPCTreeNode rightSibling = null;
 			 while(curPos != tLen){
 				 PPCTreeNode child = curRoot.firstChild;
-				 while(child != null){}
-				 
-				 
-			 }
-			 
+				 while(child != null){
+					 if(child.label == 0 - transaction[curPos].num){
+						 
+					 }
+				 }								 
+			 }			 
     	}
     	
 
