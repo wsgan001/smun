@@ -1,7 +1,6 @@
 package com.master.smun;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,6 +29,9 @@ public class Smun
 			return o2.num - o1.num;
 		}
 	};
+	
+	// Tree stuff
+	public PPCTreeNode ppcRoot;
 	
     void getData(String fileName, double support) throws IOException{
     	numOfTrans = 0;
@@ -104,23 +106,53 @@ public class Smun
     	
     	Item[] transaction = new Item[1000];
     	while((line = br.readLine()) != null){
+    		
     		if(line.isEmpty() || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@'){
     			continue;
     		}
     		
     		String[] lineSplited = line.split(" ");
-    		
+    		// for each item in the transaction
     		int tLen = 0;
     		for (String itemString : lineSplited) {
-				
+				// add each item from the transaction except infrequent item
+    			for (int j = 0; j < numOfFItem; j++) {
+    				if(itemString.equalsIgnoreCase(item[j].index)){
+					transaction[tLen] = new Item();
+					transaction[tLen].index = itemString;
+					transaction[tLen].num = 0-j;
+					tLen++;
+					break;
+    				}
+				}
 			}
+    		
+        	Arrays.sort(transaction, 0, tLen, comp);
+        	
+			 //Print the transaction
+			 for(int j=0; j < tLen; j++){
+				 System.out.print(" " + transaction[j].index + " ");
+			 }
+			 System.out.println();
+
+			 int curPos = 0;
+			 PPCTreeNode curRoot = (ppcRoot);
+			 while(curPos != tLen){
+				 PPCTreeNode child = curRoot.firstChild;
+				 while(child != null){}
+				 
+				 
+			 }
+			 
     	}
+    	
+
     }
     
     void runAlgorithm(String fileName, double support, String output) throws IOException{
     	getData(fileName,support);
     	
     	//Build tree
-    	
+    	buildTree(fileName);
     }
 }
