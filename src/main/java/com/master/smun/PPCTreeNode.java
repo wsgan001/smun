@@ -1,7 +1,7 @@
 package com.master.smun;
 
 public class PPCTreeNode {
-	public int label;
+	public String label;
 	public PPCTreeNode firstChild;
 	public PPCTreeNode rightSibling;
 	public PPCTreeNode labelSibling;
