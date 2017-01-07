@@ -14,147 +14,200 @@ import java.util.Map.Entry;
  * @author bangbv
  *
  */
-public class Smun 
-{
+public class Smun {
 	public int minSupport;
 	public int numOfFItem;
 	public Item[] item;
-	
+
 	private int numOfTrans;
-	
+
 	static Comparator<Item> comp = new Comparator<Item>() {
-		
+
 		@Override
-		public int compare(Item o1, Item o2) {			
+		public int compare(Item o1, Item o2) {
 			return o2.num - o1.num;
 		}
 	};
-	
+
 	// Tree stuff
 	public PPCTreeNode ppcRoot;
-	
-    void getData(String fileName, double support) throws IOException{
-    	numOfTrans = 0;
-    	Map<String, Integer> mapItemCount = new HashMap<>();
-   
-    	BufferedReader br = new BufferedReader(new FileReader(fileName));
-    	String line;
-    	// each line (transaction) until the end of the file
-    	while((line = br.readLine()) != null){
-    		// if the line is a comment, is empty or is a kind of metadata
-    		if(line.isEmpty() || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@'){
-    			continue;
-    		}
-    		
-    		numOfTrans++;
-    		
-    		// split the line into items
-    		String[] lineSplited = line.split(" ");
-    		// for each item in the transaction
-    		for (String itemString : lineSplited) {
-				// increase the support count of the item by 1 
-    			Integer count = mapItemCount.get(itemString);
-    			if(count == null){
-    				mapItemCount.put(itemString, 1);
-    			}else{
-    				mapItemCount.put(itemString, ++count);
-    			}
+	public PPCTreeNode[] headerTable;
+	public int[] headerTableLen;
+
+	void getData(String fileName, double support) throws IOException {
+		numOfTrans = 0;
+		Map<String, Integer> mapItemCount = new HashMap<>();
+
+		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		String line;
+		// each line (transaction) until the end of the file
+		while ((line = br.readLine()) != null) {
+			// if the line is a comment, is empty or is a kind of metadata
+			if (line.isEmpty() || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@') {
+				continue;
 			}
-    	}
-    	// close the input file
-    	br.close();
-    	System.out.println("mapItemCount:"+mapItemCount);
-    	
-    	minSupport = (int) Math.ceil(support*numOfTrans);
-    	System.out.println("minSupport:"+minSupport);
-    	
-    	numOfFItem = mapItemCount.size();    	
-    	System.out.println("num of Item:"+numOfFItem);
-    	
-    	Item[] tempItem = new Item[numOfFItem];
-    	int i = 0;
-    	for (Entry<String, Integer> entry : mapItemCount.entrySet()) {
-			if(entry.getValue() >= minSupport){
+
+			numOfTrans++;
+
+			// split the line into items
+			String[] lineSplited = line.split(" ");
+			// for each item in the transaction
+			for (String itemString : lineSplited) {
+				// increase the support count of the item by 1
+				Integer count = mapItemCount.get(itemString);
+				if (count == null) {
+					mapItemCount.put(itemString, 1);
+				} else {
+					mapItemCount.put(itemString, ++count);
+				}
+			}
+		}
+		// close the input file
+		br.close();
+		System.out.println("mapItemCount:" + mapItemCount);
+
+		minSupport = (int) Math.ceil(support * numOfTrans);
+		System.out.println("minSupport:" + minSupport);
+
+		numOfFItem = mapItemCount.size();
+		System.out.println("num of Item:" + numOfFItem);
+
+		Item[] tempItem = new Item[numOfFItem];
+		int i = 0;
+		for (Entry<String, Integer> entry : mapItemCount.entrySet()) {
+			if (entry.getValue() >= minSupport) {
 				tempItem[i] = new Item();
 				tempItem[i].index = entry.getKey();
 				tempItem[i].num = entry.getValue();
 				i++;
-			}			
+			}
 		}
-    	
-    	item = new Item[i];
-    	System.arraycopy(tempItem, 0, item, 0, i);
-    	
-    	numOfFItem = item.length;
-    	
-    	Arrays.sort(item,comp);
-    	printArray(item);
-    }
-    
-    void printArray(Object[] o){
-    	System.out.println();
-    	for (Object object : o) {
-			System.out.print(object.toString()+"|");
+
+		item = new Item[i];
+		System.arraycopy(tempItem, 0, item, 0, i);
+
+		numOfFItem = item.length;
+
+		Arrays.sort(item, comp);
+		printArray(item);
+	}
+
+	void printArray(Object[] o) {
+		System.out.println();
+		for (Object object : o) {
+			System.out.print(object.toString() + "|");
 		}
-    	System.out.println();
-    }
-    
-    void buildTree(String fileName) throws IOException{
-    	
-    	BufferedReader br = new BufferedReader(new FileReader(fileName));
-    	String line;
-    	
-    	Item[] transaction = new Item[1000];
-    	while((line = br.readLine()) != null){
-    		
-    		if(line.isEmpty() || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@'){
-    			continue;
-    		}
-    		
-    		String[] lineSplited = line.split(" ");
-    		// for each item in the transaction
-    		int tLen = 0;
-    		for (String itemString : lineSplited) {
-				// add each item from the transaction except infrequent item
-    			for (int j = 0; j < numOfFItem; j++) {
-    				if(itemString.equalsIgnoreCase(item[j].index)){
-					transaction[tLen] = new Item();
-					transaction[tLen].index = itemString;
-					transaction[tLen].num = 0-j;
-					tLen++;
-					break;
-    				}
+		System.out.println();
+	}
+
+	void buildTree(String fileName) throws IOException {
+		ppcRoot.label = null;
+		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		String line;
+
+		Item[] transaction = new Item[1000];
+		
+		// for each transaction 
+		while ((line = br.readLine()) != null) {
+			System.out.println("transaction:"+line);
+			if (line.isEmpty() || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@') {
+				continue;
+			}
+
+			String[] lineSplited = line.split(" ");
+			// for each item in the transaction
+			int tLen = 0;
+			for (String itemString : lineSplited) {
+				// add each item to the transaction except infrequent item
+				for (int j = 0; j < numOfFItem; j++) {
+					// if item is frequent item then add to the transaction
+					if (itemString.equalsIgnoreCase(item[j].index)) {
+						transaction[tLen] = new Item();
+						transaction[tLen].index = itemString;
+						// 
+						transaction[tLen].num = 0 - j;
+						tLen++;
+						break;
+					}
 				}
 			}
-    		
-        	Arrays.sort(transaction, 0, tLen, comp);
-        	
-			 //Print the transaction
-			 for(int j=0; j < tLen; j++){
-				 System.out.print(" " + transaction[j].index + " ");
-			 }
-			 System.out.println();
 
-			 int curPos = 0;
-			 PPCTreeNode curRoot = (ppcRoot);
-			 PPCTreeNode rightSibling = null;
-			 while(curPos != tLen){
-				 PPCTreeNode child = curRoot.firstChild;
-				 while(child != null){
-					 if(child.label == 0 - transaction[curPos].num){
-						 
-					 }
-				 }								 
-			 }			 
-    	}
-    	
+			Arrays.sort(transaction, 0, tLen, comp);
 
-    }
-    
-    void runAlgorithm(String fileName, double support, String output) throws IOException{
-    	getData(fileName,support);
-    	
-    	//Build tree
-    	buildTree(fileName);
-    }
+			// Print the transaction
+			System.out.print("transaction after soft:");
+			for (int j = 0; j < tLen; j++) {
+				System.out.print(" " + transaction[j].index + " ");
+			}
+			System.out.println();
+
+			int curPos = 0;
+			PPCTreeNode curRoot = (ppcRoot);
+			PPCTreeNode rightSibling = null;
+			while (curPos != tLen) {
+				PPCTreeNode child = curRoot.firstChild;
+				while (child != null) {
+					// travel left node
+					// check new branch or not
+					System.out.print(child.label+":"+transaction[curPos].index);
+					if (child.label.equalsIgnoreCase(transaction[curPos].index)) {
+						curPos++;
+						child.count++;
+						curRoot = child;
+						break;
+					}
+					// travel right node
+					// if not exist then create right node
+					if(child.rightSibling == null){
+						rightSibling = child;
+						child = null;
+						break;
+					}
+					child =  child.rightSibling;
+				}
+				// condition to break
+				if(child == null){
+					break;
+				}				
+			}
+			
+			// for the first time
+			for (int j = curPos; j < tLen; j++) {
+				PPCTreeNode ppcNode = new PPCTreeNode();
+				ppcNode.label = transaction[j].index;
+				System.out.print(" "+ppcNode.label);
+				if (rightSibling != null) {
+					rightSibling.rightSibling = ppcNode;
+					rightSibling = null;
+				} else {
+					curRoot.firstChild = ppcNode;
+				}
+				ppcNode.rightSibling = null;
+				ppcNode.firstChild = null;
+				ppcNode.father = curRoot;
+				ppcNode.labelSibling = null;
+				ppcNode.count = 1;
+				curRoot = ppcNode;
+			}
+			
+			System.out.println();
+		}
+		
+		// reader close
+		br.close();
+
+		// create a header table
+		headerTable = new PPCTreeNode[numOfFItem];
+		headerTableLen = new int[numOfFItem];
+	}
+
+	void runAlgorithm(String fileName, double support, String output) throws IOException {
+		
+		ppcRoot = new PPCTreeNode();
+		
+		getData(fileName, support);
+
+		// Build tree
+		buildTree(fileName);
+	}
 }
