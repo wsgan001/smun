@@ -8,7 +8,7 @@ import java.net.URLDecoder;
 public class MainTestSmun {
 
 	public static void main(String[] args) throws IOException {
-		String input = readInput("contextPasquier99.txt");
+		String input = readInput("input.txt");
 		String output = "output.txt";
 		
 		double minsup = 0.4;
