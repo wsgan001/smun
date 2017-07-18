@@ -1,11 +1,6 @@
 package com.master.smun;
 
-public class Item {
+class Item {
 	public int index;
 	public int num;
-
-	@Override
-	public String toString() {
-		return index + ":" + num;
-	}
 }
