@@ -1,10 +1,22 @@
 package com.master.smun;
 
 class Item {
-	public int index;
-	public int num;
+	public int id;
 	
 	public Item(int key){
-		this.index = key;
+		this.id = key;
 	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(id).toString();
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}	
 }
