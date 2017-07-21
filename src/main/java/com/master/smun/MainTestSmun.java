@@ -1,12 +1,11 @@
 package com.master.smun;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 public class MainTestSmun {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		String input = fileToPath("input.txt");
 		String output = "output.txt";		
 		double minsup = 0.4;		
