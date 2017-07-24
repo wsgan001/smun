@@ -219,10 +219,15 @@ public class SMUN {
 
 			PPCTreeNode temp = root.father;
 			while (temp.label != -1) {
-				System.out.println(root.label * (root.label - 1) / 2 + temp.label);
+				int x = root.label * (root.label - 1) / 2 + temp.label;
+				System.out.print(x+":");
+				if(x == 3){
+					System.out.println(x);
+				}
 				itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
 				temp = temp.father;
 			}
+			System.out.println();
 			if (root.firstChild != null) {
 				root = root.firstChild;
 			} else {
