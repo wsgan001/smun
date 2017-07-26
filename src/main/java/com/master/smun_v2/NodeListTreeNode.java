@@ -1,5 +1,10 @@
 package com.master.smun_v2;
 
+/**
+ * N-list
+ * @author banbui
+ *
+ */
 public class NodeListTreeNode {
 	public int label;
 	public NodeListTreeNode firstChild;
