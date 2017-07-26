@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.master.prepost.MemoryLogger;
+
 public class SMUN {
 	long startTimestamp,endTimestamp;
 	int outputCount;
@@ -51,7 +53,7 @@ public class SMUN {
 		}
 	};
 	private int numOfSequences;
-
+	
 	public void runAlgorithm(String filename, double minsup, String output) throws IOException {
 		outputCount = 0;
 		nlNodeCount = 0;
@@ -73,6 +75,33 @@ public class SMUN {
 		resultLen = 0;
 		result = new int[numOfFItem];
 		buildTree(filename);
+		nlRoot.label = numOfFItem;
+		nlRoot.firstChild = null;
+		nlRoot.next = null;
+		// create N-list of 1-itemset
+		initializeTree();
+		sameItems = new int[numOfFItem];
+		int from_cursor = bf_cursor;
+		int from_col = bf_col;
+		int from_size = bf_currentSize;
+		// Recursively traverse the tree
+		NodeListTreeNode curNode = nlRoot.firstChild;
+		NodeListTreeNode next = null;
+		while (curNode != null) {
+			next = curNode.next;
+			// call the recursive "traverse" method
+			traverse(curNode, nlRoot, 1, 0);
+			for (int c = bf_col; c > from_col; c--) {
+				bf[c] = null;
+			}
+			bf_col = from_col;
+			bf_cursor = from_cursor;
+			bf_currentSize = from_size;
+			curNode = next;
+		}
+		writer.close();
+		MemoryLogger.getInstance().checkMemory();
+		endTimestamp = System.currentTimeMillis();		
 	}
 
 	void getData(String filename, double support) throws IOException {
@@ -224,7 +253,8 @@ public class SMUN {
 				if(x == 3){
 					System.out.println(x);
 				}
-				itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
+				//itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
+				itemsetCount[temp.label] += root.count;
 				temp = temp.father;
 			}
 			System.out.println();
@@ -252,10 +282,11 @@ public class SMUN {
 			}
 		}
 	}
-
+	// construct the N-list of each frequent 1-itemset
 	void initializeTree() {
 		NodeListTreeNode lastChild = null;
 		for (int t = numOfFItem - 1; t >= 0; t--) {
+			// check buffer size
 			if (bf_cursor > bf_currentSize - headTableLen[t] * 3) {
 				bf_col++;
 				bf_cursor = 0;
@@ -360,20 +391,12 @@ public class SMUN {
 
 	public void traverse(NodeListTreeNode curNode, NodeListTreeNode curRoot, int level, int sameCount)
 			throws IOException {
-
 		MemoryLogger.getInstance().checkMemory();
-
-		// System.out.println("==== traverse(): " + curNode.label + " "+ level +
-		// " " + sameCount);
 		NodeListTreeNode sibling = curNode.next;
 		NodeListTreeNode lastChild = null;
 		while (sibling != null) {
 			if (level > 1 || (level == 1
 					&& itemsetCount[(curNode.label - 1) * curNode.label / 2 + sibling.label] >= minSupport)) {
-				// tangible.RefObject<Integer> tempRef_sameCount = new
-				// tangible.RefObject<Integer>(
-				// sameCount);
-				// int sameCountTemp = sameCount;
 				IntegerByRef sameCountTemp = new IntegerByRef();
 				sameCountTemp.count = sameCount;
 				lastChild = iskItemSetFreq(curNode, sibling, level, lastChild, sameCountTemp);
@@ -384,15 +407,11 @@ public class SMUN {
 		}
 		resultCount += Math.pow(2.0, sameCount);
 		nlLenSum += Math.pow(2.0, sameCount) * curNode.NLLength;
-
 		result[resultLen++] = curNode.label;
-
 		// ============= Write itemset(s) to file ===========
 		writeItemsetsToFile(curNode, sameCount);
 		// ======== end of write to file
-
 		nlNodeCount++;
-
 		int from_cursor = bf_cursor;
 		int from_col = bf_col;
 		int from_size = bf_currentSize;
@@ -413,13 +432,9 @@ public class SMUN {
 	}
 
 	private void writeItemsetsToFile(NodeListTreeNode curNode, int sameCount) throws IOException {
-
-		// create a stringuffer
 		StringBuilder buffer = new StringBuilder();
-
 		if (curNode.support >= minSupport) {
 			outputCount++;
-
 			// append items from the itemset to the StringBuilder
 			for (int i = 0; i < resultLen; i++) {
 				buffer.append(item[result[i]].id);
@@ -439,7 +454,6 @@ public class SMUN {
 					buffer.append(item[result[k]].id);
 					buffer.append(' ');
 				}
-
 				// we create a new subset
 				for (int j = 0; j < sameCount; j++) {
 					// check if the j bit is set to 1
@@ -461,26 +475,16 @@ public class SMUN {
 		// so that we are ready for writing the next itemset.
 		writer.write(buffer.toString());
 	}
-
 	/**
 	 * Print statistics about the latest execution of the algorithm to
-	 * System.out.
 	 */
 	public void printStats() {
-		String prePost = "PrePost";
-		System.out.println("========== " + prePost + " - STATS ============");
-		System.out.println(" Minsup = " + minSupport + "\n Number of transactions: " + numOfSequences);
-		System.out.println(" Number of frequent  itemsets: " + outputCount);
+		String smun = "SMUN";
+		System.out.println("========== " + smun + " - STATS ============");
+		System.out.println(" Minsup = " + minSupport + "\n Number of sequences: " + numOfSequences);
+		System.out.println(" Number of frequent sequences: " + outputCount);
 		System.out.println(" Total time ~: " + (endTimestamp - startTimestamp) + " ms");
 		System.out.println(" Max memory:" + MemoryLogger.getInstance().getMaxMemory() + " MB");
-		System.out.println("=====================================");
+		System.out.println("============================================");
 	}
-
-	/**
-	 * Class to pass an integer by reference as in C++
-	 */
-	class IntegerByRef {
-		int count;
-	}
-
 }
