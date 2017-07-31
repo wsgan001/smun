@@ -162,6 +162,7 @@ public class SMUN {
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		String line;
 		Item[] sequence = new Item[1000];
+		int sequenceId = 0;
 		while (((line = reader.readLine()) != null)) {
 			if (line.isEmpty() == true || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@') {
 				continue;
@@ -191,7 +192,8 @@ public class SMUN {
 				while (child != null) {
 					if (child.label == 0 - sequence[curPos].count) {
 						curPos++;
-						child.count++;
+						//child.count++;
+						child.sequenceId.add(sequenceId);
 						curRoot = child;
 						break;
 					}
@@ -218,9 +220,11 @@ public class SMUN {
 				ppcNode.firstChild = null;
 				ppcNode.father = curRoot;
 				ppcNode.labelSibling = null;
-				ppcNode.count = 1;
+				ppcNode.sequenceId = new ArrayList<Integer>();
+				ppcNode.sequenceId.add(sequenceId);
 				curRoot = ppcNode;
 			}
+			sequenceId++;
 		}
 		reader.close();
 		// Create a header table
@@ -254,7 +258,7 @@ public class SMUN {
 					System.out.println(x);
 				}
 				//itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
-				itemsetCount[temp.label] += root.count;
+				itemsetCount[temp.label] += root.sequenceId.size();
 				temp = temp.father;
 			}
 			System.out.println();
@@ -296,7 +300,7 @@ public class SMUN {
 
 			NodeListTreeNode nlNode = new NodeListTreeNode();
 			nlNode.label = t;
-			nlNode.support = 0;
+			//nlNode.support = 0;
 			nlNode.NLStartinBf = bf_cursor;
 			nlNode.NLLength = 0;
 			nlNode.NLCol = bf_col;
@@ -304,10 +308,11 @@ public class SMUN {
 			nlNode.next = null;
 			PPCTreeNode ni = headTable[t];
 			while (ni != null) {
-				nlNode.support += ni.count;
+				//nlNode.support += ni.count;
+				nlNode.sequenceId = ni.sequenceId;
 				bf[bf_col][bf_cursor++] = ni.foreIndex;
 				bf[bf_col][bf_cursor++] = ni.backIndex;
-				bf[bf_col][bf_cursor++] = ni.count;
+				//bf[bf_col][bf_cursor++] = ni.count;
 				nlNode.NLLength++;
 				ni = ni.labelSibling;
 			}
@@ -332,7 +337,7 @@ public class SMUN {
 		}
 
 		NodeListTreeNode nlNode = new NodeListTreeNode();
-		nlNode.support = 0;
+		//nlNode.support = 0;
 		nlNode.NLStartinBf = bf_cursor;
 		nlNode.NLCol = bf_col;
 		nlNode.NLLength = 0;
@@ -352,7 +357,17 @@ public class SMUN {
 					bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 2];
 					nlNode.NLLength++;
 				}
-				nlNode.support += bf[col_i][cursor_i + 2];
+				//nlNode.support += bf[col_i][cursor_i + 2];
+				nlNode.sequenceId = new ArrayList<Integer>();
+				if(ni.sequenceId.size() > nj.sequenceId.size()){
+					for(int i = 0;i<ni.sequenceId.size();i++){
+						for(int j=0;j<nj.sequenceId.size();j++){
+							if(ni.sequenceId.get(i) == nj.sequenceId.get(j)){
+								nlNode.sequenceId.add(ni.sequenceId.get(i));
+							}
+						}
+					}
+				}
 				last_cur = cursor_j;
 				cursor_i += 3;
 			} else if (bf[col_i][cursor_i] < bf[col_j][cursor_j]) {
@@ -361,8 +376,8 @@ public class SMUN {
 				cursor_j += 3;
 			}
 		}
-		if (nlNode.support >= minSupport) {
-			if (ni.support == nlNode.support && (nlNode.NLLength == 1)) {
+		if (nlNode.sequenceId.size() >= minSupport) {
+			if (ni.sequenceId.size() == nlNode.sequenceId.size() && (nlNode.NLLength == 1)) {
 				sameItems[sameCountRef.count++] = nj.label;
 				bf_cursor = nlNode.NLStartinBf;
 				if (nlNode != null) {
@@ -433,7 +448,7 @@ public class SMUN {
 
 	private void writeItemsetsToFile(NodeListTreeNode curNode, int sameCount) throws IOException {
 		StringBuilder buffer = new StringBuilder();
-		if (curNode.support >= minSupport) {
+		if (curNode.sequenceId.size() >= minSupport) {
 			outputCount++;
 			// append items from the itemset to the StringBuilder
 			for (int i = 0; i < resultLen; i++) {
@@ -442,7 +457,7 @@ public class SMUN {
 			}
 			// append the support of the itemset
 			buffer.append("#SUP: ");
-			buffer.append(curNode.support);
+			buffer.append(curNode.sequenceId.size());
 			buffer.append("\n");
 		}
 		// === Write all combination that can be made using the node list of
@@ -466,7 +481,7 @@ public class SMUN {
 					}
 				}
 				buffer.append("#SUP: ");
-				buffer.append(curNode.support);
+				buffer.append(curNode.sequenceId.size());
 				buffer.append("\n");
 				outputCount++;
 			}
