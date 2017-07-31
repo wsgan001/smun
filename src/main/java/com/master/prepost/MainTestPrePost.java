@@ -16,7 +16,7 @@ public class MainTestPrePost {
 		String input = fileToPath("contextPasquier99.txt");
 		String output = ".//output.txt";  // the path for saving the frequent itemsets found
 		
-		double minsup = 0; // means a minsup of 2 transaction (we used a relative support)
+		double minsup = 0.5; // means a minsup of 2 transaction (we used a relative support)
 		
 		// Applying the algorithm
 		PrePost prepost = new PrePost();
