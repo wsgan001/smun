@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import com.master.prepost.MemoryLogger;
 
 public class SMUN {
+	public boolean usePrePostPlus = false;	
 	long startTimestamp,endTimestamp;
 	int outputCount;
 	BufferedWriter writer = null;
@@ -367,6 +368,8 @@ public class SMUN {
 							}
 						}
 					}
+				}else{
+					
 				}
 				last_cur = cursor_j;
 				cursor_i += 3;
@@ -377,7 +380,7 @@ public class SMUN {
 			}
 		}
 		if (nlNode.sequenceId.size() >= minSupport) {
-			if (ni.sequenceId.size() == nlNode.sequenceId.size() && (nlNode.NLLength == 1)) {
+			if (ni.sequenceId.size() == nlNode.sequenceId.size() && (usePrePostPlus || nlNode.NLLength == 1)) {
 				sameItems[sameCountRef.count++] = nj.label;
 				bf_cursor = nlNode.NLStartinBf;
 				if (nlNode != null) {
