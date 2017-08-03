@@ -1,6 +1,6 @@
 package com.master.smun_v2;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * N-list
@@ -11,7 +11,7 @@ public class NodeListTreeNode {
 	public int label;
 	public NodeListTreeNode firstChild;
 	public NodeListTreeNode next;
-	public List<Integer> sequenceId;
+	public Set<Integer> sequenceId;
 	//public int support;
 	public int NLStartinBf;
 	public int NLLength;
