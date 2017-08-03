@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -221,7 +222,7 @@ public class SMUN {
 				ppcNode.firstChild = null;
 				ppcNode.father = curRoot;
 				ppcNode.labelSibling = null;
-				ppcNode.sequenceId = new ArrayList<Integer>();
+				ppcNode.sequenceId = new HashSet<Integer>();
 				ppcNode.sequenceId.add(sequenceId);
 				curRoot = ppcNode;
 			}
@@ -307,13 +308,15 @@ public class SMUN {
 			nlNode.NLCol = bf_col;
 			nlNode.firstChild = null;
 			nlNode.next = null;
+			nlNode.sequenceId = new HashSet<Integer>();
 			PPCTreeNode ni = headTable[t];
 			while (ni != null) {
 				//nlNode.support += ni.count;
-				nlNode.sequenceId = ni.sequenceId;
+				nlNode.sequenceId.addAll(ni.sequenceId);
 				bf[bf_col][bf_cursor++] = ni.foreIndex;
 				bf[bf_col][bf_cursor++] = ni.backIndex;
 				//bf[bf_col][bf_cursor++] = ni.count;
+				bf[bf_col][bf_cursor++] = -1;
 				nlNode.NLLength++;
 				ni = ni.labelSibling;
 			}
@@ -342,7 +345,8 @@ public class SMUN {
 		nlNode.NLStartinBf = bf_cursor;
 		nlNode.NLCol = bf_col;
 		nlNode.NLLength = 0;
-
+		nlNode.sequenceId = new HashSet<Integer>();
+		
 		int cursor_i = ni.NLStartinBf;
 		int cursor_j = nj.NLStartinBf;
 		int col_i = ni.NLCol;
@@ -359,17 +363,11 @@ public class SMUN {
 					nlNode.NLLength++;
 				}
 				//nlNode.support += bf[col_i][cursor_i + 2];
-				nlNode.sequenceId = new ArrayList<Integer>();
-				if(ni.sequenceId.size() > nj.sequenceId.size()){
-					for(int i = 0;i<ni.sequenceId.size();i++){
-						for(int j=0;j<nj.sequenceId.size();j++){
-							if(ni.sequenceId.get(i) == nj.sequenceId.get(j)){
-								nlNode.sequenceId.add(ni.sequenceId.get(i));
-							}
-						}
+				
+				for (int si : ni.sequenceId) {
+					if(nj.sequenceId.contains(si)){
+						nlNode.sequenceId.add(si);
 					}
-				}else{
-					
 				}
 				last_cur = cursor_j;
 				cursor_i += 3;
@@ -450,6 +448,7 @@ public class SMUN {
 	}
 
 	private void writeItemsetsToFile(NodeListTreeNode curNode, int sameCount) throws IOException {
+		System.out.println("print...");
 		StringBuilder buffer = new StringBuilder();
 		if (curNode.sequenceId.size() >= minSupport) {
 			outputCount++;
@@ -457,11 +456,18 @@ public class SMUN {
 			for (int i = 0; i < resultLen; i++) {
 				buffer.append(item[result[i]].id);
 				buffer.append(' ');
+				
+				System.out.print(item[result[i]].id);
+				System.out.print(' ');				
 			}
 			// append the support of the itemset
 			buffer.append("#SUP: ");
 			buffer.append(curNode.sequenceId.size());
 			buffer.append("\n");
+			
+			System.out.print("#SUP: ");
+			System.out.print(curNode.sequenceId.size());
+			System.out.print("\n");			
 		}
 		// === Write all combination that can be made using the node list of
 		// this itemset
@@ -471,6 +477,9 @@ public class SMUN {
 				for (int k = 0; k < resultLen; k++) {
 					buffer.append(item[result[k]].id);
 					buffer.append(' ');
+					
+					System.out.print(item[result[k]].id);
+					System.out.print(' ');					
 				}
 				// we create a new subset
 				for (int j = 0; j < sameCount; j++) {
@@ -481,12 +490,18 @@ public class SMUN {
 						buffer.append(item[sameItems[j]].id);
 						buffer.append(' ');
 						// newSet.add(item[sameItems[j]].index);
+						System.out.print(item[sameItems[j]].id);
+						System.out.print(' ');						
 					}
 				}
 				buffer.append("#SUP: ");
 				buffer.append(curNode.sequenceId.size());
 				buffer.append("\n");
 				outputCount++;
+				
+				System.out.print("#SUP: ");
+				System.out.print(curNode.sequenceId.size());
+				System.out.print("\n");				
 			}
 		}
 		// write the strinbuffer to file and create a new line
