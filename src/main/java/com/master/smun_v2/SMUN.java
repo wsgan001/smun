@@ -184,7 +184,7 @@ public class SMUN {
 					}
 				}
 			}
-			Arrays.sort(sequence, 0, tLen, comp);
+			//Arrays.sort(sequence, 0, tLen, comp);
 			Util.printArray(sequence);			
 			int curPos = 0;
 			PPCTreeNode curRoot = (ppcRoot);
@@ -222,6 +222,7 @@ public class SMUN {
 				ppcNode.firstChild = null;
 				ppcNode.father = curRoot;
 				ppcNode.labelSibling = null;
+				//ppcNode.count = 1;
 				ppcNode.sequenceId = new HashSet<Integer>();
 				ppcNode.sequenceId.add(sequenceId);
 				curRoot = ppcNode;
@@ -240,9 +241,9 @@ public class SMUN {
 		while (root != null) {
 			root.foreIndex = pre;
 			pre++;
-			if(pre == 7){
+/*			if(pre == 7){
 				System.out.println("pre:"+pre);
-			}
+			}*/
 			if (headTable[root.label] == null) {
 				headTable[root.label] = root;
 				tempHead[root.label] = root;
@@ -254,16 +255,17 @@ public class SMUN {
 
 			PPCTreeNode temp = root.father;
 			while (temp.label != -1) {
-				int x = root.label * (root.label - 1) / 2 + temp.label;
-				System.out.print(x+":");
+				//int x = root.label * (root.label - 1) / 2 + temp.label;
+/*				System.out.print(x+":");
 				if(x == 3){
 					System.out.println(x);
-				}
+				}*/
 				//itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
 				itemsetCount[temp.label] += root.sequenceId.size();
+				//itemsetCount[temp.label] += root.count;
 				temp = temp.father;
 			}
-			System.out.println();
+			//System.out.println();
 			if (root.firstChild != null) {
 				root = root.firstChild;
 			} else {
@@ -328,18 +330,22 @@ public class SMUN {
 				lastChild = nlNode;
 			}
 		}
+		System.out.println("check result !");
 	}
 
 	NodeListTreeNode iskItemSetFreq(NodeListTreeNode ni, NodeListTreeNode nj, int level, NodeListTreeNode lastChild,
 			IntegerByRef sameCountRef) {
-
+		if(lastChild == null){
+			System.out.println("iskItemSetFreq("+ni.label+","+nj.label+","+level+","+lastChild+","+sameCountRef+")");
+		}else{
+			System.out.println("iskItemSetFreq("+ni.label+","+nj.label+","+level+","+lastChild.label+","+sameCountRef+")");
+		}
 		if (bf_cursor + ni.NLLength * 3 > bf_currentSize) {
 			bf_col++;
 			bf_cursor = 0;
 			bf_currentSize = bf_size > ni.NLLength * 1000 ? bf_size : ni.NLLength * 1000;
 			bf[bf_col] = new int[bf_currentSize];
 		}
-
 		NodeListTreeNode nlNode = new NodeListTreeNode();
 		//nlNode.support = 0;
 		nlNode.NLStartinBf = bf_cursor;
@@ -362,23 +368,25 @@ public class SMUN {
 					bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 2];
 					nlNode.NLLength++;
 				}
-				//nlNode.support += bf[col_i][cursor_i + 2];
-				
+				//nlNode.support += bf[col_i][cursor_i + 2];				
 				for (int si : ni.sequenceId) {
 					if(nj.sequenceId.contains(si)){
 						nlNode.sequenceId.add(si);
 					}
 				}
+				//nlNode.support += bf[col_i][cursor_i + 2];
 				last_cur = cursor_j;
 				cursor_i += 3;
-			} else if (bf[col_i][cursor_i] < bf[col_j][cursor_j]) {
+			} else if (bf[col_i][cursor_i] <= bf[col_j][cursor_j]) {
 				cursor_i += 3;
 			} else if (bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
 				cursor_j += 3;
 			}
 		}
 		if (nlNode.sequenceId.size() >= minSupport) {
+		//if (nlNode.support >= minSupport) {
 			if (ni.sequenceId.size() == nlNode.sequenceId.size() && (usePrePostPlus || nlNode.NLLength == 1)) {
+			//if (ni.support == nlNode.support && (usePrePostPlus || nlNode.NLLength == 1)) {				
 				sameItems[sameCountRef.count++] = nj.label;
 				bf_cursor = nlNode.NLStartinBf;
 				if (nlNode != null) {
@@ -407,14 +415,21 @@ public class SMUN {
 
 	public void traverse(NodeListTreeNode curNode, NodeListTreeNode curRoot, int level, int sameCount)
 			throws IOException {
+		System.out.println("Traverse("+curNode.label+","+curRoot.label+","+level+","+sameCount+")");
 		MemoryLogger.getInstance().checkMemory();
-		NodeListTreeNode sibling = curNode.next;
+		//NodeListTreeNode sibling = curNode.next;
+		NodeListTreeNode sibling = curNode;
 		NodeListTreeNode lastChild = null;
+		// join N-list curNode and N-list sibling
 		while (sibling != null) {
-			if (level > 1 || (level == 1
-					&& itemsetCount[(curNode.label - 1) * curNode.label / 2 + sibling.label] >= minSupport)) {
+			//int os = (curNode.label - 1) * curNode.label / 2 + sibling.label;
+			int os = sibling.label;
+			if (level > 1 || (level == 1 && itemsetCount[os] >= minSupport)) {
 				IntegerByRef sameCountTemp = new IntegerByRef();
 				sameCountTemp.count = sameCount;
+				if(curNode.label == 2 && sibling.label == 2){
+					System.out.println("debug only");
+				}
 				lastChild = iskItemSetFreq(curNode, sibling, level, lastChild, sameCountTemp);
 				sameCount = sameCountTemp.count;
 
@@ -448,9 +463,10 @@ public class SMUN {
 	}
 
 	private void writeItemsetsToFile(NodeListTreeNode curNode, int sameCount) throws IOException {
-		System.out.println("print...");
+		System.out.println("writeItemSetsToFile("+curNode.label+","+sameCount+")");
 		StringBuilder buffer = new StringBuilder();
 		if (curNode.sequenceId.size() >= minSupport) {
+		//if (curNode.support >= minSupport) {
 			outputCount++;
 			// append items from the itemset to the StringBuilder
 			for (int i = 0; i < resultLen; i++) {
@@ -463,10 +479,12 @@ public class SMUN {
 			// append the support of the itemset
 			buffer.append("#SUP: ");
 			buffer.append(curNode.sequenceId.size());
+			//buffer.append(curNode.support);
 			buffer.append("\n");
 			
 			System.out.print("#SUP: ");
 			System.out.print(curNode.sequenceId.size());
+			//System.out.print(curNode.support);
 			System.out.print("\n");			
 		}
 		// === Write all combination that can be made using the node list of
@@ -496,10 +514,12 @@ public class SMUN {
 				}
 				buffer.append("#SUP: ");
 				buffer.append(curNode.sequenceId.size());
+				//buffer.append(curNode.support);
 				buffer.append("\n");
 				outputCount++;
 				
 				System.out.print("#SUP: ");
+				//System.out.print(curNode.support);
 				System.out.print(curNode.sequenceId.size());
 				System.out.print("\n");				
 			}
