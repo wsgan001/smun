@@ -310,14 +310,14 @@ public class SMUN {
 			nlNode.NLCol = bf_col;
 			nlNode.firstChild = null;
 			nlNode.next = null;
-			nlNode.sequenceId = new HashSet<Integer>();
+			//nlNode.sequenceId = new HashSet<Integer>();
 			PPCTreeNode ni = headTable[t];
 			while (ni != null) {
-				//nlNode.support += ni.count;
-				nlNode.sequenceId.addAll(ni.sequenceId);
+				nlNode.support += ni.count;
+				//nlNode.sequenceId.addAll(ni.sequenceId);
 				bf[bf_col][bf_cursor++] = ni.foreIndex;
 				bf[bf_col][bf_cursor++] = ni.backIndex;
-				//bf[bf_col][bf_cursor++] = ni.count;
+				bf[bf_col][bf_cursor++] = ni.count;
 				bf[bf_col][bf_cursor++] = -1;
 				nlNode.NLLength++;
 				ni = ni.labelSibling;
