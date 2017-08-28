@@ -310,15 +310,16 @@ public class SMUN {
 			nlNode.NLCol = bf_col;
 			nlNode.firstChild = null;
 			nlNode.next = null;
-			//nlNode.sequenceId = new HashSet<Integer>();
+			nlNode.sequenceId = new HashSet<Integer>();
 			PPCTreeNode ni = headTable[t];
 			while (ni != null) {
-				nlNode.support += ni.count;
-				//nlNode.sequenceId.addAll(ni.sequenceId);
+				//nlNode.support += ni.count;
+				nlNode.sequenceId.addAll(ni.sequenceId);
+				//nlNode.support += ni.sequenceId.size();
 				bf[bf_col][bf_cursor++] = ni.foreIndex;
 				bf[bf_col][bf_cursor++] = ni.backIndex;
 				bf[bf_col][bf_cursor++] = ni.count;
-				bf[bf_col][bf_cursor++] = -1;
+				//bf[bf_col][bf_cursor++] = -1;
 				nlNode.NLLength++;
 				ni = ni.labelSibling;
 			}
@@ -418,7 +419,8 @@ public class SMUN {
 		System.out.println("Traverse("+curNode.label+","+curRoot.label+","+level+","+sameCount+")");
 		MemoryLogger.getInstance().checkMemory();
 		//NodeListTreeNode sibling = curNode.next;
-		NodeListTreeNode sibling = curNode;
+		//NodeListTreeNode sibling = curNode;
+		NodeListTreeNode sibling = curRoot.firstChild;
 		NodeListTreeNode lastChild = null;
 		// join N-list curNode and N-list sibling
 		while (sibling != null) {
@@ -427,7 +429,7 @@ public class SMUN {
 			if (level > 1 || (level == 1 && itemsetCount[os] >= minSupport)) {
 				IntegerByRef sameCountTemp = new IntegerByRef();
 				sameCountTemp.count = sameCount;
-				if(curNode.label == 2 && sibling.label == 2){
+				if(curNode.label == 2 && sibling.label == 1){
 					System.out.println("debug only");
 				}
 				lastChild = iskItemSetFreq(curNode, sibling, level, lastChild, sameCountTemp);
