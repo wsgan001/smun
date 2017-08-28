@@ -318,7 +318,7 @@ public class SMUN {
 				//nlNode.support += ni.sequenceId.size();
 				bf[bf_col][bf_cursor++] = ni.foreIndex;
 				bf[bf_col][bf_cursor++] = ni.backIndex;
-				bf[bf_col][bf_cursor++] = ni.count;
+				bf[bf_col][bf_cursor++] = ni.sequenceId.size();
 				//bf[bf_col][bf_cursor++] = -1;
 				nlNode.NLLength++;
 				ni = ni.labelSibling;
@@ -429,7 +429,7 @@ public class SMUN {
 			if (level > 1 || (level == 1 && itemsetCount[os] >= minSupport)) {
 				IntegerByRef sameCountTemp = new IntegerByRef();
 				sameCountTemp.count = sameCount;
-				if(curNode.label == 2 && sibling.label == 1){
+				if(curNode.label == 2 && sibling.label == 2){
 					System.out.println("debug only");
 				}
 				lastChild = iskItemSetFreq(curNode, sibling, level, lastChild, sameCountTemp);
