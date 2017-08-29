@@ -360,6 +360,9 @@ public class SMUN {
 		int col_j = nj.NLCol;
 		int last_cur = -1;
 		while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+			System.out.print(bf[col_i][cursor_i] +"vs"+ bf[col_j][cursor_j]);
+			System.out.print(bf[col_i][cursor_i+1] +"vs"+ bf[col_j][cursor_j+1]);
+			System.out.println();
 			if (bf[col_i][cursor_i] > bf[col_j][cursor_j] && bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
 				if (last_cur == cursor_j) {
 					bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_i + 2];
