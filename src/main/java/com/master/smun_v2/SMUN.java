@@ -435,7 +435,7 @@ public class SMUN {
 				if(curNode.label == 2 && sibling.label == 2){
 					System.out.println("debug only");
 				}
-				lastChild = iskItemSetFreq(curNode, sibling, level, lastChild, sameCountTemp);
+				lastChild = iskItemSetFreq(curNode, sibling, level, lastChild, sameCountTemp); 
 				sameCount = sameCountTemp.count;
 
 			}
