@@ -615,11 +615,16 @@ public class PrePost {
 			for (int i = 0; i < resultLen; i++) {
 				buffer.append(item[result[i]].index);
 				buffer.append(' ');
+				System.out.print(item[result[i]].index);
+				System.out.print(' ');				
 			}
 			// append the support of the itemset
 			buffer.append("#SUP: ");
 			buffer.append(curNode.support);
 			buffer.append("\n");
+			System.out.print("#SUP: ");
+			System.out.print(curNode.support);
+			System.out.print("\n");
 		}
 		// === Write all combination that can be made using the node list of
 		// this itemset
@@ -629,6 +634,8 @@ public class PrePost {
 				for (int k = 0; k < resultLen; k++) {
 					buffer.append(item[result[k]].index);
 					buffer.append(' ');
+					System.out.print(item[result[k]].index);
+					System.out.print(' ');					
 				}
 
 				// we create a new subset
@@ -639,12 +646,17 @@ public class PrePost {
 						// if yes, add it to the set
 						buffer.append(item[sameItems[j]].index);
 						buffer.append(' ');
+						System.out.print(item[sameItems[j]].index);
+						System.out.print(' ');						
 						// newSet.add(item[sameItems[j]].index);
 					}
 				}
 				buffer.append("#SUP: ");
 				buffer.append(curNode.support);
 				buffer.append("\n");
+				System.out.print("#SUP: ");
+				System.out.print(curNode.support);
+				System.out.print("\n");				
 				outputCount++;
 			}
 		}
