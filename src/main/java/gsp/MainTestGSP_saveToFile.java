@@ -28,7 +28,7 @@ public class MainTestGSP_saveToFile {
         AbstractionCreator abstractionCreator = AbstractionCreator_Qualitative.getInstance();
         SequenceDatabase sequenceDatabase = new SequenceDatabase(abstractionCreator);
 
-        sequenceDatabase.loadFile(fileToPath("contextPrefixSpan.txt"), support);
+        sequenceDatabase.loadFile(fileToPath("input.txt"), support);
 
         AlgoGSP algorithm = new AlgoGSP(support, mingap, maxgap, windowSize,abstractionCreator);
 
