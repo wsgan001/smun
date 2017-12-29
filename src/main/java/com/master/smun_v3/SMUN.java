@@ -335,6 +335,9 @@ public class SMUN {
 
 	NodeListTreeNode iskItemSetFreq(NodeListTreeNode ni, NodeListTreeNode nj, int level, NodeListTreeNode lastChild,
 			IntegerByRef sameCountRef) {
+		if(ni.support == 2371 && nj.support == 2268) {
+			System.out.println("This case !");
+		}
 		if (bf_cursor + ni.NLLength * 3 > bf_currentSize) {
 			bf_col++;
 			bf_cursor = 0;
@@ -394,16 +397,16 @@ public class SMUN {
 					while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
 						System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
 						if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-							if (last_cur == cursor_i) {
+/*							if (last_cur == cursor_i) {
 								bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_j + 2];
-							} else {
+							} else {*/
 								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
 								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
 								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
 								nlNode.NLLength++;
 								System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
 								System.out.println("bf_cursor:" + bf_cursor);
-							}
+							//}
 							// check before summary
 							if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
 								nlNode.support += bf[col_j][cursor_j + 2];
@@ -426,16 +429,16 @@ public class SMUN {
 						while (cursor_i<ni.NLStartinBf+ni.NLLength * 3&& cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
 							System.out.println(bf[col_i][cursor_i]+","+ bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
 							if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-								if (last_cur == cursor_i) {
+/*								if (last_cur == cursor_i) {
 									bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_j + 2];
-								} else {
+								} else {*/
 									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
 									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
 									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
 									nlNode.NLLength++;
 									System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
 									System.out.println("bf_cursor:" + bf_cursor);
-								}
+								//}
 								// check before summary
 								if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
 									nlNode.support += bf[col_j][cursor_j + 2];
@@ -457,16 +460,16 @@ public class SMUN {
 						while (cursor_i < ni.NLStartinBf + ni.NLLength * 3&& cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
 							System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
 							if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-								if (last_cur == cursor_j) {
+/*								if (last_cur == cursor_j) {
 									bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_j + 2];
-								} else {
+								} else {*/
 									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
 									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
 									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
 									nlNode.NLLength++;
 									System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
 									System.out.println("bf_cursor:" + bf_cursor);
-								}
+								//}
 								// check before summary
 								if ((nlNode.NLLength == 1) && (last_cur != cursor_j)) {
 									nlNode.support += bf[col_j][cursor_j + 2];
@@ -522,16 +525,16 @@ public class SMUN {
 					while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
 						System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
 						if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-							if (last_cur == cursor_i) {
+/*							if (last_cur == cursor_i) {
 								bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
-							} else {
+							} else {*/
 								bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
 								bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
 								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
 								nlNode.NLLength++;
 								System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + ":"+ bf[col_j][cursor_j + 2]);
 								System.out.println("bf_cursor:" + bf_cursor);
-							}
+							//}
 							// check before summary
 							if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
 								nlNode.support += bf[col_j][cursor_j + 2];
@@ -621,16 +624,16 @@ public class SMUN {
 				while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
 					System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]+ "," + bf[col_j][cursor_j + 1]);
 					if (bf[col_i][cursor_i] > bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
-						if (last_cur == cursor_j) {
+/*						if (last_cur == cursor_j) {
 							bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
-						} else {
+						} else {*/
 							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
 							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
 							bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
 							nlNode.NLLength++;
 							System.out.println("bf_cursor:" + bf_cursor);
 							System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + ":"+ bf[col_j][cursor_j + 2]);
-						}
+						//}
 						// check before summary
 						if ((nlNode.NLLength == 1) && (last_cur != cursor_j)) {
 							nlNode.support += bf[col_j][cursor_j + 2];
