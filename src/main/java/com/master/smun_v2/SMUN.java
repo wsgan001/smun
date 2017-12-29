@@ -94,6 +94,7 @@ public class SMUN {
 		while (curNode != null) {
 			next = curNode.next;
 			// call the recursive "traverse" method
+			System.out.println("------------branch:" + curNode.label + "-------------");
 			traverse(curNode, nlRoot, 1, 0);
 			for (int c = bf_col; c > from_col; c--) {
 				bf[c] = null;
@@ -171,7 +172,7 @@ public class SMUN {
 			if (line.isEmpty() == true || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@') {
 				continue;
 			}
-			System.out.println(line);
+			// System.out.println(line);
 			String[] lineSplited = line.split(" ");
 			int tLen = 0;
 			for (String itemString : lineSplited) {
@@ -187,7 +188,7 @@ public class SMUN {
 				}
 			}
 			// Arrays.sort(sequence, 0, tLen, comp);
-			Util.printArray(sequence);
+			// Util.printArray(sequence);
 			int curPos = 0;
 			PPCTreeNode curRoot = (ppcRoot);
 			PPCTreeNode rightSibling = null;
@@ -254,13 +255,7 @@ public class SMUN {
 
 			PPCTreeNode temp = root.father;
 			while (temp.label != -1) {
-				// int x = root.label * (root.label - 1) / 2 + temp.label;
-				/*
-				 * System.out.print(x+":"); if(x == 3){ System.out.println(x); }
-				 */
 				// itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
-				// itemsetCount[temp.label] += root.sequenceId.size();
-				// itemsetCount[temp.label] += root.count;
 				temp = temp.father;
 			}
 			// System.out.println();
@@ -360,99 +355,325 @@ public class SMUN {
 		int b_cursor = cursor_j;
 		int b_col = col_j;
 		int last_cur = -1;
-		if ((ni.label < nj.label) && level == 1) {
+		if ((ni.label < nj.label)) {
 			nlNode.isConvert = 10;
-			while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
-				System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]
-						+ "," + bf[col_j][cursor_j + 1]);
-				if (bf[col_i][cursor_i] < bf[col_j][cursor_j] && bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-
-					if (last_cur == cursor_j) {
-						bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_i + 2];
-					} else {
-						bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
-						bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
-						bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
-						System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
-						System.out.println("bf_cursor:" + bf_cursor);
+			if ((level & 1) == 1) {
+				if (ni.NLLength == 1) { // case 1
+					System.out.println("level:" + level + ",case:1");
+					while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+						System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
+						if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+							//if (last_cur == cursor_i) {
+								//bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_j + 2];
+							//} else {
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+								System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
+								System.out.println("bf_cursor:" + bf_cursor);
+								nlNode.NLLength++;
+							//}
+							// check before summary
+							if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							} else if (!(bf[col_j][cursor_j] > bf[b_col][b_cursor]&& bf[col_j][cursor_j + 1] < bf[b_col][b_cursor + 1])) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							}
+							b_col = col_j;
+							b_cursor = cursor_j;
+							last_cur = cursor_i;
+							cursor_j += 3;
+						} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
+							cursor_i += 3;
+						} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+							cursor_j += 3;
+						}
 					}
-					// check before summary
-					if(nlNode.NLLength == 0) {
-						nlNode.support += bf[col_j][cursor_j + 2];
-					}else if (!(bf[col_j][cursor_j] > bf[b_col][b_cursor] && bf[col_j][cursor_j + 1] < bf[b_col][b_cursor + 1])) {
-						nlNode.support += bf[col_j][cursor_j + 2];
+				} else if (nj.NLLength == 1) { // case 2
+					System.out.println("level:" + level + ",case:2");
+					while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+						System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
+						if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+							if (last_cur == cursor_i) {
+								bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_j + 2];
+							} else {
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+								nlNode.NLLength++;
+								System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
+								System.out.println("bf_cursor:" + bf_cursor);
+							}
+							// check before summary
+							if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							} else if (!(bf[col_j][cursor_j] > bf[b_col][b_cursor]&& bf[col_j][cursor_j + 1] < bf[b_col][b_cursor + 1])) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							}
+							b_col = col_j;
+							b_cursor = cursor_j;
+							last_cur = cursor_i;
+							cursor_j += 3;
+						} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
+							cursor_i += 3;
+						} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+							cursor_j += 3;
+						}
 					}
-					nlNode.NLLength++;
-					b_col = col_j;
-					b_cursor = cursor_j;
-					last_cur = cursor_j;
-					cursor_j += 3;
-				} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
-					cursor_j += 3;
-				} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
-					cursor_i += 3;
+				} else { 
+					if (level == 1) { // case 3
+						System.out.println("level:" + level + ",case:3");
+						while (cursor_i<ni.NLStartinBf+ni.NLLength * 3&& cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+							System.out.println(bf[col_i][cursor_i]+","+ bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
+							if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+								if (last_cur == cursor_i) {
+									bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_j + 2];
+								} else {
+									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
+									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
+									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+									nlNode.NLLength++;
+									System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
+									System.out.println("bf_cursor:" + bf_cursor);
+								}
+								// check before summary
+								if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
+									nlNode.support += bf[col_j][cursor_j + 2];
+								} else if (!(bf[col_j][cursor_j] > bf[b_col][b_cursor]&& bf[col_j][cursor_j + 1] < bf[b_col][b_cursor + 1])) {
+									nlNode.support += bf[col_j][cursor_j + 2];
+								}
+								b_col = col_j;
+								b_cursor = cursor_j;
+								last_cur = cursor_i;
+								cursor_i += 3;
+							} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
+								cursor_j += 3;
+							} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+								cursor_i += 3;
+							}
+						}
+					} else { // case 3.1
+						System.out.println("level:" + level + ",case:3.1");
+						while (cursor_i < ni.NLStartinBf + ni.NLLength * 3&& cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+							System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
+							if (bf[col_i][cursor_i] > bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+								if (last_cur == cursor_j) {
+									bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_j + 2];
+								} else {
+									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
+									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
+									bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+									nlNode.NLLength++;
+									System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
+									System.out.println("bf_cursor:" + bf_cursor);
+								}
+								// check before summary
+								if ((nlNode.NLLength == 1) && (last_cur != cursor_j)) {
+									nlNode.support += bf[col_j][cursor_j + 2];
+								} else if (!(bf[col_j][cursor_j] > bf[b_col][b_cursor]&& bf[col_j][cursor_j + 1] < bf[b_col][b_cursor + 1])) {
+									nlNode.support += bf[col_j][cursor_j + 2];
+								}
+								b_col = col_j;
+								b_cursor = cursor_j;
+								last_cur = cursor_j;
+								cursor_j += 3;
+							} else if (bf[col_i][cursor_i] <= bf[col_j][cursor_j]) {
+								cursor_j += 3;
+							} else if (bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+								cursor_i += 3;
+							}
+						}
+					}
 				}
-			}
-		} else if ((ni.label < nj.label || (ni.isConvert == 10 && nj.isConvert != 10)) && level > 1) {
-			nlNode.isConvert = 10;
-			while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
-				System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]
-						+ "," + bf[col_j][cursor_j + 1]);
-				if (bf[col_i][cursor_i] > bf[col_j][cursor_j] && bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
-
-					if (last_cur == cursor_j) {
-						bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_i + 2];
-					} else {
-						bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
-						bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
-						bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
-						System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1]);
-						System.out.println("bf_cursor:" + bf_cursor);
+			} else {
+				if (nj.NLLength == 1) { // case 4
+					System.out.println("level:" + level + ",case:4");
+					while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+						System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
+						if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+							//if (last_cur == cursor_i) {
+								//bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
+							//} else {
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+								nlNode.NLLength++;
+								System.out.println(bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1] + ":"+ bf[col_j][cursor_j + 2]);
+								System.out.println("bf_cursor:" + bf_cursor);
+							//}
+							// check before summary
+							if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							} else if (!(bf[col_j][cursor_j] > bf[b_col][b_cursor]&& bf[col_j][cursor_j + 1] < bf[b_col][b_cursor + 1])) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							}
+							b_col = col_j;
+							b_cursor = cursor_j;
+							last_cur = cursor_i;
+							cursor_j += 3;
+						} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
+							cursor_j += 3;
+						} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+							cursor_i += 3;
+						}
 					}
-					// check before summary
-					if(nlNode.NLLength == 0) {
-						nlNode.support += bf[col_j][cursor_j + 2];
-					}else if (!(bf[col_i][cursor_i] > bf[b_col][b_cursor] && bf[col_j][cursor_i + 1] < bf[b_col][b_cursor + 1])) {
-						nlNode.support += bf[col_j][cursor_j + 2];
+				} else { // case 5
+					System.out.println("level:" + level + ",case:5");
+					while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+						System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs"+ bf[col_j][cursor_j] + "," + bf[col_j][cursor_j + 1]);
+						if (bf[col_i][cursor_i] > bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+							if (last_cur == cursor_i) {
+								bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
+							} else {
+								bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
+								bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
+								bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+								nlNode.NLLength++;
+								System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + ":"+ bf[col_j][cursor_j + 2]);
+								System.out.println("bf_cursor:" + bf_cursor);
+							}
+							// check before summary
+							if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							} else if (!(bf[col_i][cursor_i] > bf[b_col][b_cursor]&& bf[col_i][cursor_i + 1] < bf[b_col][b_cursor + 1])) {
+								nlNode.support += bf[col_j][cursor_j + 2];
+							}
+							b_col = col_i;
+							b_cursor = cursor_i;
+							last_cur = cursor_i;
+							cursor_j += 3;
+						} else if (bf[col_i][cursor_i] <= bf[col_j][cursor_j]) {
+							cursor_i += 3;
+						} else if (bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+							cursor_j += 3;
+						}
 					}
-					nlNode.NLLength++;
-					b_col = col_i;
-					b_cursor = cursor_i;
-					last_cur = cursor_j;
-					cursor_j += 3;
-				} else if (bf[col_i][cursor_i] <= bf[col_j][cursor_j]) {
-					cursor_i += 3;
-				} else if (bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-					cursor_j += 3;
 				}
 			}
 		} else {
-			while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
-				System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]
-						+ "," + bf[col_j][cursor_j + 1]);
-				if (bf[col_i][cursor_i] < bf[col_j][cursor_j] && bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-
-					if (last_cur == cursor_j) {
-						bf[bf_col][bf_cursor - 1] += bf[col_i][cursor_i + 2];
-					} else {
-						bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
-						bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
-						bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
-						System.out.println("bf_cursor:" + bf_cursor);
+			if ((ni.isConvert == 10) && (ni.isConvert != nj.isConvert)) { // case 6
+				System.out.println("level:" + level + ",case:6");
+				while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+					System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]+ "," + bf[col_j][cursor_j + 1]);
+					if (bf[col_i][cursor_i] > bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+						//if (last_cur == cursor_j) {
+							//bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
+						//} else {
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 2];
+							nlNode.NLLength++;
+							System.out.println("bf_cursor:" + bf_cursor);
+							System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + ":"+ bf[col_i][cursor_i + 2]);
+						//}
+						// check before summary
+						if ((nlNode.NLLength == 1) && (last_cur != cursor_j)) {
+							nlNode.support += bf[col_i][cursor_i + 2];
+						} else if (!(bf[col_i][cursor_i] > bf[b_col][b_cursor]&& bf[col_i][cursor_i + 1] < bf[b_col][b_cursor + 1])) {
+							nlNode.support += bf[col_i][cursor_i + 2];
+						}
+						b_col = col_i;
+						b_cursor = cursor_i;
+						last_cur = cursor_j;
+						cursor_i += 3;
+					} else if (bf[col_i][cursor_i] <= bf[col_j][cursor_j]) {
+						cursor_i += 3;
+					} else if (bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+						cursor_j += 3;
 					}
-					// check before summary
-					if (!(bf[col_i][cursor_i] > bf[b_col][b_cursor] && bf[col_i][cursor_i + 1] < bf[b_col][b_cursor + 1])) {
-						nlNode.support += bf[col_j][cursor_j + 2];
+				}
+			} else if ((nj.isConvert == 10) && (ni.isConvert != nj.isConvert)) { // case 7
+				System.out.println("level:" + level + ",case:7");
+				while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+					System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]+ "," + bf[col_j][cursor_j + 1]);
+					if (bf[col_i][cursor_i] > bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+						if (last_cur == cursor_j) {
+							bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
+						} else {
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
+							bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+							nlNode.NLLength++;
+							System.out.println("bf_cursor:" + bf_cursor);
+							System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + ":"+ bf[col_j][cursor_j + 2]);
+						}
+						// check before summary
+						if ((nlNode.NLLength == 1) && (last_cur != cursor_j)) {
+							nlNode.support += bf[col_j][cursor_j + 2];
+						} else if (!(bf[col_i][cursor_i] > bf[b_col][b_cursor]&& bf[col_i][cursor_i + 1] < bf[b_col][b_cursor + 1])) {
+							nlNode.support += bf[col_j][cursor_j + 2];
+						}
+						b_col = col_i;
+						b_cursor = cursor_i;
+						last_cur = cursor_j;
+						cursor_i += 3;
+					} else if (bf[col_i][cursor_i] <= bf[col_j][cursor_j]) {
+						cursor_i += 3;
+					} else if (bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+						cursor_j += 3;
 					}
-					nlNode.NLLength++;
-					b_col = col_i;
-					b_cursor = cursor_i;
-					last_cur = cursor_j;
-					cursor_i += 3;
-				} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
-					cursor_j += 3;
-				} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
-					cursor_i += 3;
+				}
+			} else if ((ni.isConvert == 10) && (nj.isConvert == 10)) { // case 8
+				System.out.println("level:" + level + ",case:8");
+				while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+					System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]+ "," + bf[col_j][cursor_j + 1]);
+					if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+						if (last_cur == cursor_i) {
+							bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
+						} else {
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
+							bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+							nlNode.NLLength++;
+							System.out.println("bf_cursor:" + bf_cursor);
+							System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + ":"+ bf[col_j][cursor_j + 2]);
+						}
+						// check before summary
+						if ((nlNode.NLLength == 1) && (last_cur != cursor_i)) {
+							nlNode.support += bf[col_j][cursor_j + 2];
+						} else if (!(bf[col_i][cursor_i] > bf[b_col][b_cursor]&& bf[col_i][cursor_i + 1] < bf[b_col][b_cursor + 1])) {
+							nlNode.support += bf[col_j][cursor_j + 2];
+						}
+						b_col = col_i;
+						b_cursor = cursor_i;
+						last_cur = cursor_i;
+						cursor_j += 3;
+					} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
+						cursor_j += 3;
+					} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+						cursor_i += 3;
+					}
+				}
+			} else {
+				System.out.println("level:" + level + ",case:0");
+				while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
+					System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j]+ "," + bf[col_j][cursor_j + 1]);
+					if (bf[col_i][cursor_i] < bf[col_j][cursor_j]&& bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
+						//if (last_cur == cursor_j) {
+							//bf[bf_col][bf_cursor - 1] += bf[col_j][cursor_j + 2];
+						//} else {
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i];
+							bf[bf_col][bf_cursor++] = bf[col_i][cursor_i + 1];
+							bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
+							nlNode.NLLength++;
+							System.out.println("bf_cursor:" + bf_cursor);
+							System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + ":"+ bf[col_j][cursor_j + 2]);
+						//}
+						// check before summary
+						if ((nlNode.NLLength == 1) && (last_cur != cursor_j)) {
+							nlNode.support += bf[col_j][cursor_j + 2];
+						} else if (!(bf[col_i][cursor_i] > bf[b_col][b_cursor]&& bf[col_i][cursor_i + 1] < bf[b_col][b_cursor + 1])) {
+							nlNode.support += bf[col_j][cursor_j + 2];
+						}
+						b_col = col_i;
+						b_cursor = cursor_i;
+						last_cur = cursor_j;
+						cursor_i += 3;
+					} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
+						cursor_j += 3;
+					} else if (bf[col_i][cursor_i + 1] < bf[col_j][cursor_j + 1]) {
+						cursor_i += 3;
+					}
 				}
 			}
 		}
@@ -504,7 +725,6 @@ public class SMUN {
 				sameCountTemp.count = sameCount;
 				lastChild = iskItemSetFreq(curNode, sibling, level, lastChild, sameCountTemp);
 				sameCount = sameCountTemp.count;
-
 			}
 			sibling = sibling.next;
 		}
@@ -545,17 +765,17 @@ public class SMUN {
 				buffer.append(item[result[i]].id);
 				buffer.append(' ');
 
-				System.out.print(item[result[i]].id);
-				System.out.print(' ');
+				// System.out.print(item[result[i]].id);
+				// System.out.print(' ');
 			}
 			// append the support of the itemset
 			buffer.append("#SUP: ");
 			buffer.append(curNode.support);
 			buffer.append("\n");
 
-			System.out.print("#SUP: ");
-			System.out.print(curNode.support);
-			System.out.print("\n");
+			// System.out.print("#SUP: ");
+			// System.out.print(curNode.support);
+			// System.out.print("\n");
 		}
 		// === Write all combination that can be made using the node list of
 		// this itemset
@@ -565,9 +785,8 @@ public class SMUN {
 				for (int k = 0; k < resultLen; k++) {
 					buffer.append(item[result[k]].id);
 					buffer.append(' ');
-
-					System.out.print(item[result[k]].id);
-					System.out.print(' ');
+					// System.out.print(item[result[k]].id);
+					// System.out.print(' ');
 				}
 				// we create a new subset
 				for (int j = 0; j < sameCount; j++) {
@@ -578,8 +797,8 @@ public class SMUN {
 						buffer.append(item[sameItems[j]].id);
 						buffer.append(' ');
 						// newSet.add(item[sameItems[j]].index);
-						System.out.print(item[sameItems[j]].id);
-						System.out.print(' ');
+						// System.out.print(item[sameItems[j]].id);
+						// System.out.print(' ');
 					}
 				}
 				buffer.append("#SUP: ");
@@ -587,9 +806,9 @@ public class SMUN {
 				buffer.append("\n");
 				outputCount++;
 
-				System.out.print("#SUP: ");
-				System.out.print(curNode.support);
-				System.out.print("\n");
+				// System.out.print("#SUP: ");
+				// System.out.print(curNode.support);
+				// System.out.print("\n");
 			}
 		}
 		// write the strinbuffer to file and create a new line
