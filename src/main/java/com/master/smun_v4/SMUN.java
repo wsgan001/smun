@@ -76,15 +76,16 @@ public class SMUN {
 		getData(filename, minsup);
 		resultLen = 0;
 		// result = new int[numOfFItem];
-		result = new int[100];
+		result = new int[1000];
 		buildTree(filename);
 		nlRoot.label = numOfFItem;
+		System.out.println("numOfFItem:"+numOfFItem);
 		nlRoot.firstChild = null;
 		nlRoot.next = null;
 		// create N-list of 1-itemset
 		initializeTree();
 		// sameItems = new int[numOfFItem];
-		sameItems = new int[100];
+		sameItems = new int[1000];
 		int from_cursor = bf_cursor;
 		int from_col = bf_col;
 		int from_size = bf_currentSize;
@@ -166,7 +167,8 @@ public class SMUN {
 		ppcRoot.label = -1;
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		String line;
-		Item[] sequence = new Item[1000];
+		Item[] sequence = new Item[10000];
+		//Item[] sequence = new Item[1000];
 		int sequenceId = 0;
 		while (((line = reader.readLine()) != null)) {
 			if (line.isEmpty() == true || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@') {
@@ -237,7 +239,8 @@ public class SMUN {
 		headTable = new PPCTreeNode[numOfFItem];
 		headTableLen = new int[numOfFItem];
 		PPCTreeNode[] tempHead = new PPCTreeNode[numOfFItem];
-		itemsetCount = new int[(numOfFItem - 1) * numOfFItem / 2];
+		//itemsetCount = new int[(numOfFItem - 1) * numOfFItem / 2];
+		itemsetCount = new int[10000];
 		PPCTreeNode root = ppcRoot.firstChild;
 		int pre = 0;
 		int last = 0;
@@ -256,6 +259,7 @@ public class SMUN {
 			PPCTreeNode temp = root.father;
 			while (temp.label != -1) {
 				// itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
+				itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
 				temp = temp.father;
 			}
 			// System.out.println();
@@ -357,8 +361,8 @@ public class SMUN {
 		while (cursor_i < ni.NLStartinBf + ni.NLLength * 3 && cursor_j < nj.NLStartinBf + nj.NLLength * 3) {
 			//System.out.println(bf[col_i][cursor_i] + "," + bf[col_i][cursor_i + 1] + "vs" + bf[col_j][cursor_j] + ","+ bf[col_j][cursor_j + 1]);
 			if (bf[col_i][cursor_i] < bf[col_j][cursor_j] && bf[col_i][cursor_i + 1] > bf[col_j][cursor_j + 1]) {
-				bf[bf_col][bf_cursor++] = bf[col_i][cursor_j];
-				bf[bf_col][bf_cursor++] = bf[col_i][cursor_j + 1];
+				bf[bf_col][bf_cursor++] = bf[col_j][cursor_j];
+				bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 1];
 				bf[bf_col][bf_cursor++] = bf[col_j][cursor_j + 2];
 				nlNode.NLLength++;
 				//System.out.println("bf_cursor:" + bf_cursor);
@@ -438,6 +442,7 @@ public class SMUN {
 		// ======== end of write to file
 		nlNodeCount++;
 		// int from_cursor = bf_cursor;
+		int from_cursor = bf_cursor;
 		int from_col = bf_col;
 		int from_size = bf_currentSize;
 		NodeListTreeNode child = curNode.firstChild;
@@ -451,6 +456,7 @@ public class SMUN {
 			}
 			bf_col = from_col;
 			// bf_cursor = from_cursor;
+			bf_cursor = from_cursor;
 			bf_currentSize = from_size;
 			child = next;
 		}
