@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import com.master.prepost.MemoryLogger;
 
@@ -55,8 +54,9 @@ public class SMUN {
 		}
 	};
 	private int numOfSequences;
-
+	
 	public void runAlgorithm(String filename, double minsup, String output) throws IOException {
+		//branchId = 1;
 		outputCount = 0;
 		nlNodeCount = 0;
 		ppcRoot = new PPCTreeNode();
@@ -169,7 +169,6 @@ public class SMUN {
 		BufferedReader reader = new BufferedReader(new FileReader(filename));
 		String line;
 		Item[] sequence = new Item[10000];
-		//Item[] sequence = new Item[1000];
 		int sequenceId = 0;
 		while (((line = reader.readLine()) != null)) {
 			if (line.isEmpty() == true || line.charAt(0) == '#' || line.charAt(0) == '%' || line.charAt(0) == '@') {
@@ -190,8 +189,6 @@ public class SMUN {
 					}
 				}
 			}
-			// Arrays.sort(sequence, 0, tLen, comp);
-			// Util.printArray(sequence);
 			int curPos = 0;
 			PPCTreeNode curRoot = (ppcRoot);
 			PPCTreeNode rightSibling = null;
@@ -200,7 +197,6 @@ public class SMUN {
 				while (child != null) {
 					if (child.label == 0 - sequence[curPos].count) {
 						curPos++;
-						// child.count++;
 						child.sequenceId.add(sequenceId);
 						curRoot = child;
 						break;
@@ -212,8 +208,9 @@ public class SMUN {
 					}
 					child = child.rightSibling;
 				}
-				if (child == null)
+				if (child == null) {
 					break;
+				}
 			}
 			for (int j = curPos; j < tLen; j++) {
 				PPCTreeNode ppcNode = new PPCTreeNode();
@@ -228,7 +225,6 @@ public class SMUN {
 				ppcNode.firstChild = null;
 				ppcNode.father = curRoot;
 				ppcNode.labelSibling = null;
-				//ppcNode.count = 1;
 				ppcNode.sequenceId = new HashSet<Integer>();
 				ppcNode.sequenceId.add(sequenceId);
 				curRoot = ppcNode;
@@ -260,7 +256,6 @@ public class SMUN {
 			PPCTreeNode temp = root.father;
 			while (temp.label != -1) {
 				// itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
-				//itemsetCount[root.label * (root.label - 1) / 2 + temp.label] += root.count;
 				temp = temp.father;
 			}
 			// System.out.println();
@@ -292,7 +287,6 @@ public class SMUN {
 	// construct the N-list of each frequent 1-itemset
 	void initializeTree() {
 		NodeListTreeNode lastChild = null;
-		Set<Integer> temp = null;
 		for (int t = numOfFItem - 1; t >= 0; t--) {
 			// check buffer size
 			if (bf_cursor > bf_currentSize - headTableLen[t] * 3) {
@@ -302,7 +296,6 @@ public class SMUN {
 				bf[bf_col] = new int[bf_currentSize];
 			}
 
-			temp = new HashSet<Integer>();
 			NodeListTreeNode nlNode = new NodeListTreeNode();
 			nlNode.label = t;
 			nlNode.support = 0;
@@ -312,27 +305,28 @@ public class SMUN {
 			nlNode.firstChild = null;
 			nlNode.next = null;
 			PPCTreeNode ni = headTable[t];
-			//int b_foreIndex = 0;
-			//int b_backIndex = 0;
+			int b_foreIndex = 0;
+			int b_backIndex = 0;
 			while (ni != null) {
 				// check before summary
-				temp.addAll(ni.sequenceId);
-/*				if (nlNode.NLLength == 0) {
+				if (nlNode.NLLength == 0) {
 					nlNode.support += ni.sequenceId.size();
-				} else if (!(ni.foreIndex > b_foreIndex&& ni.backIndex < b_backIndex)) {
+					b_foreIndex = ni.foreIndex;
+					b_backIndex = ni.backIndex;
+				} else if (b_foreIndex < ni.foreIndex && b_backIndex > ni.backIndex) {
+				}else {
 					nlNode.support += ni.sequenceId.size();
-				}*/
+					b_foreIndex = ni.foreIndex;
+					b_backIndex = ni.backIndex;				
+				}
 				
 				bf[bf_col][bf_cursor++] = ni.foreIndex;
 				bf[bf_col][bf_cursor++] = ni.backIndex;
 				bf[bf_col][bf_cursor++] = ni.sequenceId.size();
 
-				//b_foreIndex = ni.foreIndex;
-				//b_backIndex = ni.backIndex;
 				nlNode.NLLength++;
 				ni = ni.labelSibling;
 			}
-			nlNode.support = temp.size();
 			if (nlRoot.firstChild == null) {
 				nlRoot.firstChild = nlNode;
 				lastChild = nlNode;
@@ -376,11 +370,14 @@ public class SMUN {
 				// check before summary
 				if (nlNode.NLLength == 1) {
 					nlNode.support += bf[col_j][cursor_j + 2];
-				} else if (!(bf[col_j][cursor_j] > bf[b_col][b_cursor]&& bf[col_j][cursor_j + 1] < bf[b_col][b_cursor + 1])) {
+					b_col = col_j;
+					b_cursor = cursor_j;
+				} else if (bf[b_col][b_cursor] < bf[col_j][cursor_j] && bf[b_col][b_cursor + 1] > bf[col_j][cursor_j + 1]) {
+				}else {
 					nlNode.support += bf[col_j][cursor_j + 2];
+					b_col = col_j;
+					b_cursor = cursor_j;			
 				}
-				b_col = col_j;
-				b_cursor = cursor_j;
 				cursor_j += 3;
 			} else if (bf[col_i][cursor_i] >= bf[col_j][cursor_j]) {
 				cursor_j += 3;
