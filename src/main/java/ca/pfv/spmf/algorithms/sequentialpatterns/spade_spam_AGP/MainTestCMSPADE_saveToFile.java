@@ -27,7 +27,7 @@ public class MainTestCMSPADE_saveToFile {
     public static void main(String[] args) throws IOException {
     	String outputPath ="/Users/bvbang/workspace/smun/src/main/resources/output_cm_spade.txt";
         // Load a sequence database
-        double support = 0.3;
+        double support = 0.01;
 
         boolean keepPatterns = true;
         boolean verbose = false;
@@ -45,10 +45,10 @@ public class MainTestCMSPADE_saveToFile {
         
         SequenceDatabase sequenceDatabase = new SequenceDatabase(abstractionCreator, idListCreator);
 
-        //String filename = "/BIBLE.txt";
+        String filename = "/BIBLE.txt";
         //String filename = "/BMS1_spmf.txt";
         //String filename = "/Kosarak.txt";
-        String filename = "/FIFA.txt";
+        //String filename = "/FIFA.txt";
         sequenceDatabase.loadFile(fileToPath(filename), support);
         
         System.out.println(sequenceDatabase.toString());
