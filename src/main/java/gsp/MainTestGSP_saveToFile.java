@@ -16,7 +16,7 @@ public class MainTestGSP_saveToFile {
     public static void main(String[] args) throws IOException {
     	String output = "/Users/bvbang/workspace/smun/src/main/resources/output_gsp.txt";
         // Load a sequence database
-        double support = 0.3, mingap = 0, maxgap = Integer.MAX_VALUE, windowSize = 0;
+        double support = 0.1, mingap = 0, maxgap = Integer.MAX_VALUE, windowSize = 0;
 
         boolean keepPatterns = true;
         boolean verbose=false;
@@ -28,10 +28,10 @@ public class MainTestGSP_saveToFile {
         AbstractionCreator abstractionCreator = AbstractionCreator_Qualitative.getInstance();
         SequenceDatabase sequenceDatabase = new SequenceDatabase(abstractionCreator);
 
-        //String filename = "/input.txt";
+        String filename = "/input.txt";
         //String filename = "/BIBLE.txt";
         //String filename = "/BMS1_spmf.txt";
-        String filename = "/FIFA.txt";
+        //String filename = "/FIFA.txt";
         
         sequenceDatabase.loadFile(fileToPath(filename), support);
 
