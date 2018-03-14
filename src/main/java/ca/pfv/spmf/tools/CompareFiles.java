@@ -15,8 +15,8 @@ public class CompareFiles {
 		URL url1 = CompareFiles.class.getResource(output);
 		String filename1 = java.net.URLDecoder.decode(url1.getPath(),"UTF-8");
 		BufferedReader reader1 = new BufferedReader(new FileReader(filename1));
-		String output2 = "/output_gsp.txt";
-		//String output2 = "/output_smun.txt";
+		//String output2 = "/output_gsp.txt";
+		String output2 = "/output_smun.txt";
 		URL url2 = CompareFiles.class.getResource(output2);
 		String filename2 = java.net.URLDecoder.decode(url2.getPath(),"UTF-8");
 		BufferedReader reader2 = new BufferedReader(new FileReader(filename2));
@@ -30,8 +30,8 @@ public class CompareFiles {
 		String line1;
 		int count = 0;
 		while (((line1 = reader1.readLine()) != null)) {
-			//String newline = line1.replaceAll(" -1", "");
-			String newline = line1;
+			String newline = line1.replaceAll(" -1", "");
+			//String newline = line1;
 			if(!a2.contains(newline)) {
 				System.out.println(newline);
 				count++;
